@@ -1,12 +1,10 @@
-'use client';
-
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import type { EmblaCarouselType, EmblaOptionsType } from 'embla-carousel';
-import { cn } from './cn';
 import AutoScroll, { type AutoScrollOptionsType } from 'embla-carousel-auto-scroll';
-import Autoplay from 'embla-carousel-autoplay';
+import Autoplay, { type AutoplayOptionsType } from 'embla-carousel-autoplay';
 import AutoHeight from 'embla-carousel-auto-height';
+import { cn } from './cn';
 
 type EmblaContextValue = {
   emblaRef: ReturnType<typeof useEmblaCarousel>[0];
@@ -16,6 +14,7 @@ type EmblaContextValue = {
   canScrollPrev: boolean;
   canScrollNext: boolean;
   currentIndex: number;
+  setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
   scrollTo: (index: number) => void;
 } & Pick<CarouselProps, 'direction'>;
 
@@ -28,6 +27,7 @@ type CarouselProps = {
    * 무한 롤링, AutoScroll에 사용되는 옵션을 설정합니다.
    */
   scrollOptions?: AutoScrollOptionsType;
+  autoplayOptions?: AutoplayOptionsType;
   /**
    * 무한 롤링 여부를 설정합니다. (default:false)
    */
@@ -56,6 +56,7 @@ const EmblaContext = createContext<EmblaContextValue | null>(null);
 export default function EmblaCarousel({
   options,
   scrollOptions,
+  autoplayOptions,
   direction = 'horizontal',
   isAutoScroll,
   isAutoPlay,
@@ -76,7 +77,14 @@ export default function EmblaCarousel({
         }),
       ];
 
-    if (isAutoPlay) return [Autoplay({ playOnInit: true })];
+    if (isAutoPlay)
+      return [
+        Autoplay({
+          playOnInit: true,
+          stopOnInteraction: false,
+          ...autoplayOptions,
+        }),
+      ];
 
     if (isAutoHeight) return [AutoHeight()];
   };
@@ -100,15 +108,36 @@ export default function EmblaCarousel({
     setCanScrollPrev(api.canScrollPrev());
     setCanScrollNext(api.canScrollNext());
     setCurrentIndex(api.selectedScrollSnap());
+
+    if (api.selectedScrollSnap() !== currentIndex) {
+      setCurrentIndex(api.selectedScrollSnap());
+    }
   }, []);
 
   const onScroll = useCallback((api: EmblaCarouselType) => {
     const scrollProgress = api.scrollProgress();
 
-    const slideCount = api.scrollSnapList().length;
-    const currentSlideIndex = Math.round(scrollProgress * (slideCount - 1));
+    const snapList = api.scrollSnapList();
 
-    setCurrentIndex(currentSlideIndex);
+    if (snapList.length < 2) {
+      return 0;
+    }
+
+    const snapTerm = snapList[1] - snapList[0];
+
+    let closestIndex = 0;
+
+    for (let i = 0; i < snapList.length; i++) {
+      const lowRange = snapList[i] - snapTerm / 2;
+      const highRange = snapList[i] + snapTerm / 2;
+
+      if (lowRange < Math.ceil(scrollProgress) && scrollProgress <= highRange) {
+        closestIndex = i;
+        break;
+      }
+    }
+
+    setCurrentIndex(closestIndex);
   }, []);
 
   const onPrev = useCallback(() => {
@@ -144,12 +173,10 @@ export default function EmblaCarousel({
     [emblaApi]
   );
   useEffect(() => {
-    if (!emblaApi) {
-      return;
-    }
+    if (!emblaApi) return;
 
     // onScroll, onSelect 이벤트 둘 다 사용하면 다음 버튼 연타했을 때 버벅거림이 있음
-    if (isAutoScroll) {
+    if (isAutoScroll || enableScrollIndexTracking) {
       emblaApi.on('scroll', onScroll);
     }
 
@@ -159,7 +186,7 @@ export default function EmblaCarousel({
       emblaApi.off('select', onSelect);
       emblaApi.off('scroll', onScroll);
     };
-  }, [emblaApi]);
+  }, [emblaApi, onScroll, onSelect]);
 
   return (
     <EmblaContext.Provider
@@ -171,11 +198,12 @@ export default function EmblaCarousel({
         canScrollPrev,
         canScrollNext,
         currentIndex,
+        setCurrentIndex,
         direction,
         scrollTo,
       }}
     >
-      <div onKeyDownCapture={handleKeyDown} className={cn('relative', className)} {...rest}>
+      <div onKeyDownCapture={handleKeyDown} className={cn('relative overflow-hidden', className)} {...rest}>
         {children}
       </div>
     </EmblaContext.Provider>
@@ -193,7 +221,7 @@ const Content = ({ className, cursorGrab = true, ...rest }: React.ComponentProps
     <div
       ref={emblaRef}
       className={cn('w-full cursor-default select-none overflow-hidden', {
-        'cursor-grab active:cursor-grabbing': cursorGrab,
+        'cursor-grab active:cursor-grabbing lg:cursor-pointer': cursorGrab,
       })}
     >
       <div
