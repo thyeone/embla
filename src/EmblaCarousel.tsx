@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "./cn";
 import type { EmblaCarouselType, EmblaOptionsType } from "embla-carousel";
 import AutoHeight from "embla-carousel-auto-height";
 import AutoScroll, {
@@ -15,6 +14,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { cn } from "./cn";
 
 type EmblaContextValue = {
   emblaRef: ReturnType<typeof useEmblaCarousel>[0];
@@ -59,6 +59,8 @@ type CarouselProps = {
    *
    */
   enableScrollIndexTracking?: boolean;
+
+  enableKeyboardEvent?: boolean;
 };
 
 const EmblaContext = createContext<EmblaContextValue | null>(null);
@@ -72,6 +74,7 @@ export default function EmblaCarousel({
   isAutoPlay,
   isAutoHeight,
   enableScrollIndexTracking,
+  enableKeyboardEvent,
   children,
   className,
   ...rest
@@ -232,9 +235,11 @@ export default function EmblaCarousel({
       }}
     >
       <div
-        ref={callbackRef}
-        onKeyDown={handleKeyDown}
-        tabIndex={0}
+        {...(enableKeyboardEvent && {
+          ref: callbackRef,
+          onKeyDown: handleKeyDown,
+          tabIndex: 0,
+        })}
         className={cn("relative overflow-hidden outline-none", className)}
         {...rest}
       >
@@ -294,7 +299,7 @@ EmblaCarousel.Item = Item;
 const useEmbla = () => {
   const context = useContext(EmblaContext);
 
-  if (!context) throw new Error();
+  if (!context) throw new Error("부모 트리에서 EmblaContext를 사용해주세요.");
 
   return { ...context };
 };
