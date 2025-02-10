@@ -3,17 +3,25 @@
 ```tsx
 import { EmblaCarousel } from './EmblaCarousel';
 
+const LIST_LENGTH = 10;
+
 export default function App() {
   return (
     <div>
       <EmblaCarousel.Root>
         <EmblaCarousel.Content>
-          <EmblaCarousel.Item>1</EmblaCarousel.Item>
-          <EmblaCarousel.Item>2</EmblaCarousel.Item>
-          <EmblaCarousel.Item>3</EmblaCarousel.Item>
+          {Array.from({ length: LIST_LENGTH }).map((_, index) => (
+            <Carousel key={index} />
+          ))}
         </EmblaCarousel.Content>
       </EmblaCarousel.Root>
     </div>
   );
+}
+
+function Carousel() {
+  const { currentIndex } = useEmbla();
+
+  return <EmblaCarousel.Item>{currentIndex}</EmblaCarousel.Item>;
 }
 ```
