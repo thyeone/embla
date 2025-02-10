@@ -1,20 +1,13 @@
-"use client";
+'use client';
 
-import type { EmblaCarouselType, EmblaOptionsType } from "embla-carousel";
-import AutoHeight from "embla-carousel-auto-height";
-import AutoScroll, {
-  type AutoScrollOptionsType,
-} from "embla-carousel-auto-scroll";
-import Autoplay, { type AutoplayOptionsType } from "embla-carousel-autoplay";
-import useEmblaCarousel from "embla-carousel-react";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { cn } from "./cn";
+import type { EmblaCarouselType, EmblaOptionsType } from 'embla-carousel';
+import AutoHeight from 'embla-carousel-auto-height';
+import AutoScroll, { type AutoScrollOptionsType } from 'embla-carousel-auto-scroll';
+import Autoplay, { type AutoplayOptionsType } from 'embla-carousel-autoplay';
+import useEmblaCarousel from 'embla-carousel-react';
+import { useCallback, useEffect, useState } from 'react';
+import { createSafeContext } from './create-safe-context';
+import { cn } from './cn';
 
 type EmblaContextValue = {
   emblaRef: ReturnType<typeof useEmblaCarousel>[0];
@@ -26,9 +19,9 @@ type EmblaContextValue = {
   currentIndex: number;
   setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
   scrollTo: (index: number) => void;
-} & Pick<CarouselProps, "direction">;
+} & Pick<CarouselProps, 'direction'>;
 
-type CarouselProps = {
+type CarouselProps = React.ComponentPropsWithoutRef<'div'> & {
   /**
    * 옵션을 설정합니다.
    */
@@ -53,7 +46,7 @@ type CarouselProps = {
   /**
    * 스크롤 방향을 설정합니다. (default: horizontal)
    */
-  direction?: "horizontal" | "vertical";
+  direction?: 'horizontal' | 'vertical';
   /**
    * 스크롤 스냅 중일 때도 현재 인덱스를 tracking 합니다. (default: false)
    *
@@ -63,13 +56,15 @@ type CarouselProps = {
   enableKeyboardEvent?: boolean;
 };
 
-const EmblaContext = createContext<EmblaContextValue | null>(null);
+const [EmblaProvider, useEmbla] = createSafeContext<EmblaContextValue>('EmblaContext');
 
-export default function EmblaCarousel({
+export { useEmbla };
+
+export const Root = ({
   options,
   scrollOptions,
   autoplayOptions,
-  direction = "horizontal",
+  direction = 'horizontal',
   isAutoScroll,
   isAutoPlay,
   isAutoHeight,
@@ -78,9 +73,7 @@ export default function EmblaCarousel({
   children,
   className,
   ...rest
-}: PropsWithStrictChildren &
-  CarouselProps &
-  React.ComponentPropsWithoutRef<"div">) {
+}: PropsWithStrictChildren<CarouselProps>) => {
   const plugins = () => {
     if (isAutoScroll)
       return [
@@ -107,7 +100,7 @@ export default function EmblaCarousel({
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
       ...options,
-      axis: direction === "horizontal" ? "x" : "y",
+      axis: direction === 'horizontal' ? 'x' : 'y',
     },
     plugins()
   );
@@ -181,12 +174,12 @@ export default function EmblaCarousel({
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
         event.preventDefault();
         onPrev();
       }
 
-      if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
         event.preventDefault();
         onNext();
       }
@@ -197,7 +190,7 @@ export default function EmblaCarousel({
   const scrollTo = useCallback(
     (index: number) => {
       if (emblaApi) {
-        emblaApi.scrollTo(index, true);
+        emblaApi.scrollTo(index);
         setCurrentIndex(index);
       }
     },
@@ -206,21 +199,22 @@ export default function EmblaCarousel({
   useEffect(() => {
     if (!emblaApi) return;
 
-    // onScroll, onSelect 이벤트 둘 다 사용하면 다음 버튼 연타했을 때 버벅거림이 있음
-    if (isAutoScroll || enableScrollIndexTracking) {
-      emblaApi.on("scroll", onScroll);
+    if (enableScrollIndexTracking || isAutoScroll) {
+      emblaApi.on('scroll', onScroll);
+
+      return () => {
+        emblaApi.off('scroll', onScroll);
+      };
+    } else {
+      emblaApi.on('select', onSelect);
+      return () => {
+        emblaApi.off('select', onSelect);
+      };
     }
-
-    emblaApi.on("select", onSelect);
-
-    return () => {
-      emblaApi.off("select", onSelect);
-      emblaApi.off("scroll", onScroll);
-    };
   }, [emblaApi, onScroll, onSelect]);
 
   return (
-    <EmblaContext.Provider
+    <EmblaProvider
       value={{
         emblaRef,
         emblaApi,
@@ -240,38 +234,34 @@ export default function EmblaCarousel({
           onKeyDown: handleKeyDown,
           tabIndex: 0,
         })}
-        className={cn("relative overflow-hidden outline-none", className)}
+        className={cn('relative overflow-hidden outline-none', className)}
         {...rest}
       >
         {children}
       </div>
-    </EmblaContext.Provider>
+    </EmblaProvider>
   );
-}
+};
 
 type ContentProps = {
   cursorGrab?: boolean;
 };
 
-const Content = ({
-  className,
-  cursorGrab = true,
-  ...rest
-}: React.ComponentProps<"div"> & ContentProps) => {
+const Content = ({ className, cursorGrab = true, ...rest }: React.ComponentProps<'div'> & ContentProps) => {
   const { emblaRef, direction } = useEmbla();
 
   return (
     <div
       ref={emblaRef}
-      className={cn("w-full cursor-default select-none overflow-hidden", {
-        "cursor-grab active:cursor-grabbing lg:cursor-pointer": cursorGrab,
+      className={cn('w-full cursor-default select-none overflow-hidden', {
+        'cursor-grab active:cursor-grabbing lg:cursor-pointer': cursorGrab,
       })}
     >
       <div
         className={cn(
-          "flex",
+          'flex',
           {
-            "flex-col": direction === "vertical",
+            'flex-col': direction === 'vertical',
           },
           className
         )}
@@ -281,27 +271,16 @@ const Content = ({
   );
 };
 
-const Item = ({
-  children,
-  className,
-  ...rest
-}: PropsWithStrictChildren<React.ComponentProps<"div">>) => {
+const Item = ({ children, className, ...rest }: PropsWithStrictChildren<React.ComponentProps<'div'>>) => {
   return (
-    <div className={cn("min-w-0 shrink-0 grow-0", className)} {...rest}>
+    <div className={cn('min-w-0 shrink-0 grow-0', className)} {...rest}>
       {children}
     </div>
   );
 };
 
-EmblaCarousel.Content = Content;
-EmblaCarousel.Item = Item;
-
-const useEmbla = () => {
-  const context = useContext(EmblaContext);
-
-  if (!context) throw new Error("부모 트리에서 EmblaContext를 사용해주세요.");
-
-  return { ...context };
+export const EmblaCarousel = {
+  Root,
+  Content,
+  Item,
 };
-
-export { useEmbla };

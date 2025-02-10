@@ -1,12 +1,12 @@
-import EmblaCarousel from './EmblaCarousel';
+import { EmblaCarousel } from './EmblaCarousel';
 
 const ITEM_LIST = ['213', '23132', '213aaa', '23131zz', '2132423???', 'dafggggg'];
 
 function App() {
   return (
-    <main className='w-screen h-dvh flex justify-center items-center'>
+    <main className='flex items-center justify-center w-screen h-dvh'>
       <div className='w-full max-w-6xl mx-auto'>
-        <EmblaCarousel
+        <EmblaCarousel.Root
           options={{
             loop: true,
           }}
@@ -22,7 +22,7 @@ function App() {
               </EmblaCarousel.Item>
             ))}
           </EmblaCarousel.Content>
-        </EmblaCarousel>
+        </EmblaCarousel.Root>
       </div>
     </main>
   );
