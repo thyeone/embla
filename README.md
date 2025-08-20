@@ -7,14 +7,14 @@ const LIST_LENGTH = 10;
 
 export default function App() {
   return (
-      <EmblaCarousel.Root>
-        <EmblaCarousel.Content>
-          {Array.from({ length: LIST_LENGTH }).map((_, index) => (
-            <Carousel key={index} />
-          ))}
-        </EmblaCarousel.Content>
-      </EmblaCarousel.Root>
-  );
+    <EmblaCarousel.Root>
+      <EmblaCarousel.Content>
+        {Array.from({ length: LIST_LENGTH }).map((_, index) => (
+          <Carousel key={index} />
+        ))}
+      </EmblaCarousel.Content>
+    </EmblaCarousel.Root>
+  )
 }
 
 function Carousel() {
