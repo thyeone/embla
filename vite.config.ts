@@ -14,6 +14,7 @@ export default defineConfig({
       external: [
         'react',
         'react-dom',
+        'react/jsx-runtime',
         'embla-carousel-react',
         'embla-carousel',
         'embla-carousel-autoplay',
@@ -22,6 +23,13 @@ export default defineConfig({
         'clsx',
         'tailwind-merge',
       ],
+      output: {
+        globals: {
+          react: 'React',
+          'react-dom': 'ReactDOM',
+          'react/jsx-runtime': 'jsxRuntime',
+        },
+      },
     },
     sourcemap: true,
     emptyOutDir: true,
