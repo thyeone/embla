@@ -1,3 +1,9 @@
+# embla-kit
+
+```bash
+npm install embla-kit
+```
+
 ## Usage
 
 ```tsx
@@ -23,5 +29,3 @@ function Carousel() {
   return <EmblaCarousel.Item>{currentIndex}</EmblaCarousel.Item>;
 }
 ```
-
-##
