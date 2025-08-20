@@ -1,7 +1,7 @@
 import AutoHeight from 'embla-carousel-auto-height';
 import AutoScroll from 'embla-carousel-auto-scroll';
 import Autoplay from 'embla-carousel-autoplay';
-import type { CarouselProps } from './EmblaCarousel';
+import type { CarouselProps } from './type';
 
 type PluginConfig = Pick<
   CarouselProps,

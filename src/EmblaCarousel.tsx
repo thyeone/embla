@@ -5,7 +5,7 @@ import { cn } from './cn';
 import { createSafeContext } from './create-safe-context';
 import { options } from './embla-options';
 import { plugins } from './embla-plugins';
-import type { CarouselProps, EmblaContextValue } from './type';
+import { CarouselProps, EmblaContextValue } from './type';
 
 const [EmblaProvider, useEmbla] = createSafeContext<EmblaContextValue>('EmblaContext');
 

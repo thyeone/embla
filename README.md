@@ -1,7 +1,7 @@
 ## Basic Usage
 
 ```tsx
-import { EmblaCarousel } from './EmblaCarousel';
+import { EmblaCarousel } from 'embla-kit';
 
 const LIST_LENGTH = 10;
 
@@ -14,7 +14,7 @@ export default function App() {
         ))}
       </EmblaCarousel.Content>
     </EmblaCarousel.Root>
-  )
+  );
 }
 
 function Carousel() {
