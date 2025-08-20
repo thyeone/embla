@@ -1,8 +1,8 @@
 {
   "name": "embla-kit",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "type": "module",
-  "module": "dist/index.es.js",
+  "module": "dist/index.js",
   "author": {
     "name": "thyeone",
     "url": "https://github.com/thyeone"
@@ -15,12 +15,12 @@
   ],
   "exports": {
     ".": {
-      "import": "./dist/index.es.js",
-      "require": "./dist/index.cjs.js",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
     }
   },
-  "main": "dist/index.cjs.js",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "dev": "vite",
