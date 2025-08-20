@@ -7,7 +7,7 @@ export default defineConfig({
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),
       name: 'EmblaKit',
-      fileName: (format) => `index.${format}.js`,
+      fileName: 'index.js',
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
