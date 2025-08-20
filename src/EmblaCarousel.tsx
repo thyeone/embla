@@ -1,67 +1,13 @@
-import type { EmblaCarouselType, EmblaOptionsType } from "embla-carousel";
-import AutoHeight from "embla-carousel-auto-height";
-import AutoScroll, {
-  type AutoScrollOptionsType,
-} from "embla-carousel-auto-scroll";
-import Autoplay, { type AutoplayOptionsType } from "embla-carousel-autoplay";
-import useEmblaCarousel from "embla-carousel-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { cn } from "./cn";
-import { createSafeContext } from "./create-safe-context";
+import type { EmblaCarouselType } from 'embla-carousel';
+import useEmblaCarousel from 'embla-carousel-react';
+import { useCallback, useEffect, useState } from 'react';
+import { cn } from './cn';
+import { createSafeContext } from './create-safe-context';
+import { options } from './embla-options';
+import { plugins } from './embla-plugins';
+import type { CarouselProps, EmblaContextValue } from './type';
 
-type EmblaContextValue = {
-  emblaRef: ReturnType<typeof useEmblaCarousel>[0];
-  emblaApi: ReturnType<typeof useEmblaCarousel>[1];
-  onPrev: VoidFunction;
-  onNext: VoidFunction;
-  canScrollPrev: boolean;
-  canScrollNext: boolean;
-  currentIndex: number;
-  setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
-  scrollTo: (index: number) => void;
-} & Pick<CarouselProps, "direction">;
-
-type CustomEmblaOptionsType = EmblaOptionsType & {
-  stopPropagation?: boolean;
-};
-
-type CarouselProps = React.ComponentPropsWithoutRef<"div"> & {
-  /**
-   * 옵션을 설정합니다.
-   */
-  options?: CustomEmblaOptionsType;
-  /**
-   * 무한 롤링, AutoScroll에 사용되는 옵션을 설정합니다.
-   */
-  scrollOptions?: AutoScrollOptionsType;
-  autoplayOptions?: AutoplayOptionsType;
-  /**
-   * 무한 롤링 여부를 설정합니다. (default:false)
-   */
-  isAutoScroll?: boolean;
-  /**
-   * AutoPlay를 설정합니다. (defualt:false)
-   */
-  isAutoPlay?: boolean;
-  /**
-   * AutoHeight 설정합니다. (defualt:false)
-   */
-  isAutoHeight?: boolean;
-  /**
-   * 스크롤 방향을 설정합니다. (default: horizontal)
-   */
-  direction?: "horizontal" | "vertical";
-  /**
-   * 스크롤 스냅 중일 때도 현재 인덱스를 tracking 합니다. (default: false)
-   *
-   */
-  enableScrollIndexTracking?: boolean;
-
-  enableKeyboardEvent?: boolean;
-};
-
-const [EmblaProvider, useEmbla] =
-  createSafeContext<EmblaContextValue>("EmblaContext");
+const [EmblaProvider, useEmbla] = createSafeContext<EmblaContextValue>('EmblaContext');
 
 export { useEmbla };
 
@@ -69,7 +15,7 @@ const Root = ({
   options: injectedOptions,
   scrollOptions,
   autoplayOptions,
-  direction = "horizontal",
+  direction = 'horizontal',
   isAutoScroll,
   isAutoPlay,
   isAutoHeight,
@@ -78,69 +24,12 @@ const Root = ({
   className,
   ...rest
 }: PropsWithStrictChildren<CarouselProps>) => {
-  const plugins = useMemo(() => {
-    if (isAutoScroll)
-      return [
-        AutoScroll({
-          playOnInit: true,
-          stopOnInteraction: false,
-          speed: 1,
-          ...scrollOptions,
-        }),
-      ];
-
-    if (isAutoPlay)
-      return [
-        Autoplay({
-          playOnInit: true,
-          stopOnInteraction: false,
-          ...autoplayOptions,
-        }),
-      ];
-
-    if (isAutoHeight) return [AutoHeight()];
-  }, [isAutoHeight, isAutoPlay, isAutoScroll, autoplayOptions, scrollOptions]);
-
-  const options = useMemo(() => {
-    if (injectedOptions?.stopPropagation) {
-      return {
-        ...injectedOptions,
-        watchDrag: (
-          emblaApi: EmblaCarouselType,
-          e: MouseEvent | TouchEvent
-        ): boolean | undefined => {
-          const target = e.target as HTMLElement | null;
-
-          if (!target) return false;
-
-          const currentRootNode = emblaApi.rootNode();
-
-          const nearestViewportRoot = target.closest(
-            ".embla-viewport"
-          ) as HTMLElement | null;
-
-          if (
-            nearestViewportRoot &&
-            currentRootNode &&
-            nearestViewportRoot !== currentRootNode
-          ) {
-            return false;
-          }
-
-          return true;
-        },
-      };
-    }
-
-    return { ...injectedOptions };
-  }, [injectedOptions]);
-
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
-      ...options,
-      axis: direction === "horizontal" ? "x" : "y",
+      ...options(injectedOptions),
+      axis: direction === 'horizontal' ? 'x' : 'y',
     },
-    plugins
+    plugins({ isAutoScroll, isAutoPlay, isAutoHeight, scrollOptions, autoplayOptions })
   );
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
@@ -215,12 +104,12 @@ const Root = ({
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
         event.preventDefault();
         onPrev();
       }
 
-      if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
         event.preventDefault();
         onNext();
       }
@@ -241,15 +130,15 @@ const Root = ({
     if (!emblaApi) return;
 
     if (enableScrollIndexTracking || isAutoScroll) {
-      emblaApi.on("scroll", onScroll);
+      emblaApi.on('scroll', onScroll);
 
       return () => {
-        emblaApi.off("scroll", onScroll);
+        emblaApi.off('scroll', onScroll);
       };
     } else {
-      emblaApi.on("select", onSelect);
+      emblaApi.on('select', onSelect);
       return () => {
-        emblaApi.off("select", onSelect);
+        emblaApi.off('select', onSelect);
       };
     }
   }, [emblaApi, onScroll, onSelect, enableScrollIndexTracking, isAutoScroll]);
@@ -275,7 +164,7 @@ const Root = ({
           onKeyDown: handleKeyDown,
           tabIndex: 0,
         })}
-        className={cn("relative overflow-hidden outline-none", className)}
+        className={cn('overflow-hidden relative outline-none', className)}
         {...rest}
       />
     </EmblaProvider>
@@ -292,25 +181,25 @@ const Content = ({
   cursorGrab = true,
   wrapperClassName,
   ...rest
-}: React.ComponentProps<"div"> & ContentProps) => {
+}: React.ComponentProps<'div'> & ContentProps) => {
   const { emblaRef, direction } = useEmbla();
 
   return (
     <div
       ref={emblaRef}
       className={cn(
-        "embla-viewport w-full cursor-default select-none overflow-hidden",
+        'overflow-hidden w-full cursor-default select-none embla-viewport',
         {
-          "cursor-grab active:cursor-grabbing lg:cursor-pointer": cursorGrab,
+          'cursor-grab active:cursor-grabbing lg:cursor-pointer': cursorGrab,
         },
         wrapperClassName
       )}
     >
       <div
         className={cn(
-          "flex",
+          'flex',
           {
-            "flex-col": direction === "vertical",
+            'flex-col': direction === 'vertical',
           },
           className
         )}
@@ -320,11 +209,8 @@ const Content = ({
   );
 };
 
-const Item = ({
-  className,
-  ...rest
-}: PropsWithStrictChildren<React.ComponentProps<"div">>) => {
-  return <div className={cn("min-w-0 shrink-0 grow-0", className)} {...rest} />;
+const Item = ({ className, ...rest }: PropsWithStrictChildren<React.ComponentProps<'div'>>) => {
+  return <div className={cn('min-w-0 shrink-0 grow-0', className)} {...rest} />;
 };
 
 export const EmblaCarousel = {
