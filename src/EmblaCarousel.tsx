@@ -23,7 +23,7 @@ const Root = ({
   enableKeyboardEvent,
   className,
   ...rest
-}: PropsWithStrictChildren<CarouselProps>) => {
+}: CarouselProps) => {
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
       ...options(injectedOptions),
@@ -209,7 +209,7 @@ const Content = ({
   );
 };
 
-const Item = ({ className, ...rest }: PropsWithStrictChildren<React.ComponentProps<'div'>>) => {
+const Item = ({ className, ...rest }: React.ComponentProps<'div'>) => {
   return <div className={cn('min-w-0 shrink-0 grow-0', className)} {...rest} />;
 };
 

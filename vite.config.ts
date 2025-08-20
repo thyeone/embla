@@ -7,7 +7,7 @@ export default defineConfig({
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),
       name: 'EmblaKit',
-      fileName: (format) => `index.${format === 'es' ? 'js' : 'cjs'}`,
+      fileName: (format) => `index.${format}.js`,
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
@@ -20,21 +20,16 @@ export default defineConfig({
         'embla-carousel-auto-scroll',
         'embla-carousel-auto-height',
         'clsx',
-        'tailwind-merge'
+        'tailwind-merge',
       ],
-      output: {
-        globals: {
-          react: 'React',
-          'react-dom': 'ReactDOM',
-          'embla-carousel-react': 'useEmblaCarousel',
-        },
-      },
     },
+    sourcemap: true,
+    emptyOutDir: true,
   },
   plugins: [
     dts({
-      entryRoot: 'src',
-      outDir: 'dist',
-    })
+      tsconfigPath: './tsconfig.app.json',
+      rollupTypes: true,
+    }),
   ],
 });

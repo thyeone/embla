@@ -64,7 +64,7 @@
   "description": "Embla Carousel for React",
   "repository": {
     "type": "git",
-    "url": "https://github.com/thyeone/embla.git"
+    "url": "git+https://github.com/thyeone/embla.git"
   },
   "keywords": [
     "embla",

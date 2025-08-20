@@ -1,4 +1,4 @@
-## Basic Usage
+## Usage
 
 ```tsx
 import { EmblaCarousel } from 'embla-kit';
@@ -23,3 +23,5 @@ function Carousel() {
   return <EmblaCarousel.Item>{currentIndex}</EmblaCarousel.Item>;
 }
 ```
+
+##

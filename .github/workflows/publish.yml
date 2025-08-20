@@ -1,8 +1,7 @@
 name: Publish Package to NPM
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [main]
 
 jobs:
   publish:
