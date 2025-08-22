@@ -1,6 +1,6 @@
 {
-  "name": "embla-kit",
-  "version": "1.0.7",
+  "name": "@thyeone/embla",
+  "version": "1.0.8",
   "type": "module",
   "module": "dist/index.js",
   "author": {
