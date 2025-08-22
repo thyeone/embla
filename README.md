@@ -30,7 +30,7 @@ function Carousel() {
 }
 ```
 
-### Interface
+## Interface
 
 ``` tsx
 export declare const EmblaCarousel: {
@@ -40,7 +40,7 @@ export declare const EmblaCarousel: {
 };
 ```
 
-### Nested Carousel (prevent propagation)
+## Nested Carousel (prevent propagation)
 
 ``` tsx
 export default function Index() {
