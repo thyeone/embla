@@ -1,13 +1,13 @@
 # embla-kit
 
 ```bash
-npm install embla-kit
+npm install @thyeone/embla
 ```
 
 ## Usage
 
 ```tsx
-import { EmblaCarousel } from 'embla-kit';
+import { EmblaCarousel } from '@thyeone/embla';
 
 const LIST_LENGTH = 10;
 
