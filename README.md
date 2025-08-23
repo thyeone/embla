@@ -1,13 +1,13 @@
-# embla-kit
+# embla
 
 ```bash
-npm install embla-kit
+npm install @thyeone/embla
 ```
 
 ## Usage
 
 ```tsx
-import { EmblaCarousel } from 'embla-kit';
+import { EmblaCarousel } from '@thyeone/embla';
 
 const LIST_LENGTH = 10;
 
@@ -45,21 +45,23 @@ export declare const EmblaCarousel: {
 ``` tsx
 export default function Index() {
   return (
-    <EmblaCarousel.Root
+     <EmblaCarousel.Root
       options={{
         stopPropagation: true,
       }}
     >
       <EmblaCarousel.Content>
-        <EmblaCarousel.Root
-          options={{
-            stopPropagation: true,
-          }}
-        >
-          <EmblaCarousel.Content>
-            <EmblaCarousel.Item className="size-[300px] border border-gray-100 rounded-md"></EmblaCarousel.Item>
-          </EmblaCarousel.Content>
-        </EmblaCarousel.Root>
+        <EmblaCarousel.Item>
+          <EmblaCarousel.Root
+            options={{
+              stopPropagation: true,
+            }}
+          >
+            <EmblaCarousel.Content>
+              <EmblaCarousel.Item />
+            </EmblaCarousel.Content>
+          </EmblaCarousel.Root>
+        </EmblaCarousel.Item>
       </EmblaCarousel.Content>
     </EmblaCarousel.Root>
   );
