@@ -1,4 +1,4 @@
-# embla-kit
+# embla
 
 ```bash
 npm install @thyeone/embla
